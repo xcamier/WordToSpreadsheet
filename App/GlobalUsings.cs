@@ -1,0 +1,5 @@
+global using System.Linq;
+
+global using CommandLine;
+
+global using WordToSpreadsheet.Data;
