@@ -5,7 +5,14 @@ namespace WordToSpreadsheet.Excel;
 
 public class ExcelWriter
 {
-    int _lastRowIdx = 0;
+    private IFilterProcessor _filterProcessor;
+
+    private int _lastRowIdx = 0;
+
+    public ExcelWriter(IFilterProcessor filterProcessor)
+    {
+        _filterProcessor = filterProcessor;
+    }
 
     public void CreateExcel(List<ExcelTab> excelTabs, string fileName)
     {
@@ -36,22 +43,24 @@ public class ExcelWriter
 
 
     private void AddTableContent(ISheet sheet, WordTable table, ICellStyle style)
-    {     
-        for (int rowIdx = 0; rowIdx < table.Rows.Count; rowIdx++)
+    {    
+        WordTable tableToAdd = _filterProcessor.FilterTable(table);
+
+        for (int rowIdx = 0; rowIdx < tableToAdd.Rows.Count; rowIdx++)
         {
             int realRowIdx = rowIdx + _lastRowIdx;
             IRow row = sheet.CreateRow(realRowIdx);
-            for (int idxCol = 0; idxCol < table.Rows[rowIdx].Count(); idxCol++)
+            for (int idxCol = 0; idxCol < tableToAdd.Rows[rowIdx].Count(); idxCol++)
             {
                 ICell cell = row.CreateCell(idxCol);
-                cell.SetCellValue(table.Rows[rowIdx][idxCol]);
+                cell.SetCellValue(tableToAdd.Rows[rowIdx][idxCol]);
 
                 if (realRowIdx == _lastRowIdx)
                     cell.CellStyle = style;
             }   
         }  
 
-        _lastRowIdx += table.Rows.Count;
+        _lastRowIdx += tableToAdd.Rows.Count;
     }
 
     private static FileStream SaveFile(IWorkbook workbook, string fileName)

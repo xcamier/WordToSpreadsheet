@@ -4,3 +4,4 @@
 *.xlsx
 obj
 bin
+filters.json
